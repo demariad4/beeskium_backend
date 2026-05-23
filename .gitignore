@@ -1,0 +1,83 @@
+# =========================================================================
+# COMPILAZIONE E BUILD (Maven / Gradle)
+# =========================================================================
+# Esclude le cartelle di build generate automaticamente
+target/
+build/
+out/
+
+# Permette di tenere eventuali target annidati nei sorgenti (se proprio necessario come nel tuo originale)
+!**/src/main/**/target/
+!**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# File di log e report di testing
+*.log
+primitive-auth-*.log # Se usi pattern di log specifici
+*.dump
+*.dumpstream
+
+# =========================================================================
+# CONFIGURAZIONI DEL PROGETTO / SPRING BOOT
+# =========================================================================
+# Esclude file di configurazione locali che contengono password o chiavi API
+**/config/application-local.properties
+**/config/application-local.yml
+application-local.properties
+application-local.yml
+
+# Esclude file di crash o report delle performance della JVM
+hs_err_pid*
+replay_pid*
+
+# =========================================================================
+# SUL REPOSITORY VANNO SOLO I WRAPPER ORIGINALI, NON I BINARI O I JAR
+# =========================================================================
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+!/.mvn/wrapper/maven-wrapper.properties
+
+# Gradle (aggiunto per completezza se qualcuno del team usa Gradle)
+.gradle/
+gradle-wrapper.jar
+
+# =========================================================================
+# IDE & EDITOR (Pulito e aggiornato)
+# =========================================================================
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+# Se vuoi salvare i dizionari personali o i task di IntelliJ, scommenta sotto:
+# !.idea/dictionaries
+# !.idea/workspace.xml
+
+### Eclipse / Spring Tool Suite (STS) ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+*.code-workspace
+
+# =========================================================================
+# SISTEMA OPERATIVO
+# =========================================================================
+# File temporanei di macOS e Windows
+.DS_Store
+Thumbs.db
