@@ -1,6 +1,7 @@
 package com.dave.beeskium.controller;
 
 import java.security.Principal;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -11,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dave.beeskium.dto.ReservationReply;
 import com.dave.beeskium.dto.ReservationRequest;
 import com.dave.beeskium.model.Reservation;
+import com.dave.beeskium.model.Service;
 import com.dave.beeskium.service.ReservationService;
 
 @RestController
@@ -36,8 +39,19 @@ public class ReservationController {
     }
 
     @GetMapping("/reservations")
-    public ResponseEntity<List<Reservation>> getReservations(Principal principal) {
+    public ResponseEntity<List<ReservationReply>> getReservations(Principal principal) {
         List<Reservation> reservations = reservationService.getReservations(principal.getName());
-        return ResponseEntity.status(HttpStatus.FOUND).body(reservations);
+        List<ReservationReply> ret = new LinkedList<>();
+
+        for (Reservation r : reservations) {
+            List<Long> serviceIds = r.getServices().stream()
+                    .map(Service::getId)
+                    .toList();
+
+            ret.add(new ReservationReply(r.getReservationDate(), r.getStaff().getId(), serviceIds, r.getTotalPrice(),
+                    r.getTotalDurationMinutes()));
+        }
+        return ResponseEntity.status(HttpStatus.FOUND).body(ret);
     }
+
 }

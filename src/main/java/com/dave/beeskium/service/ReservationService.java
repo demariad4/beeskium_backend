@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+// necessario in quanto ho la classe service dello stess nome
 @org.springframework.stereotype.Service
 public class ReservationService {
 
