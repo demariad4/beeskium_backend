@@ -6,14 +6,17 @@ import java.util.List;
 
 public class ReservationReply {
 
+    private Long id;
     private LocalDateTime reservationDate;
     private Long staffId;
     private List<Long> serviceIds;
     private BigDecimal totalPrice;
     private Integer totalDurationMinutes;
 
-    public ReservationReply(LocalDateTime reservationDate, Long staffId, List<Long> serviceIds, BigDecimal totalPrice,
+    public ReservationReply(Long id, LocalDateTime reservationDate, Long staffId, List<Long> serviceIds,
+            BigDecimal totalPrice,
             Integer totalDurationMinutes) {
+        this.id = id;
         this.reservationDate = reservationDate;
         this.staffId = staffId;
         this.serviceIds = serviceIds;
@@ -59,6 +62,14 @@ public class ReservationReply {
 
     public void setTotalDurationMinutes(Integer totalDurationMinutes) {
         this.totalDurationMinutes = totalDurationMinutes;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
 }

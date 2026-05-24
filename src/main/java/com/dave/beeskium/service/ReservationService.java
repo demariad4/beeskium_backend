@@ -98,6 +98,10 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Prenotazione non trovata con ID: " + id));
 
+        if (!reservation.getUser().getEmail().equals(userEmail)) {
+            throw new RuntimeException("Non sei autorizzato a eliminare questa prenotazione");
+        }
+
         reservationRepository.delete(reservation);
     }
 

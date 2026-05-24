@@ -46,6 +46,7 @@ public class ReservationController {
                 .toList();
 
         ReservationReply reply = new ReservationReply(
+                reservation.getId(),
                 reservation.getReservationDate(),
                 reservation.getStaff().getId(),
                 serviceIds, reservation.getTotalPrice(), reservation.getTotalDurationMinutes());
@@ -63,7 +64,8 @@ public class ReservationController {
                     .map(Service::getId)
                     .toList();
 
-            ret.add(new ReservationReply(r.getReservationDate(), r.getStaff().getId(), serviceIds, r.getTotalPrice(),
+            ret.add(new ReservationReply(r.getId(), r.getReservationDate(), r.getStaff().getId(), serviceIds,
+                    r.getTotalPrice(),
                     r.getTotalDurationMinutes()));
         }
         return ResponseEntity.status(HttpStatus.FOUND).body(ret);
