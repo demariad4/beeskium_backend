@@ -26,6 +26,10 @@ public class Reservation {
     @JoinColumn(name = "staff_id", nullable = false)
     private Staff staff;
 
+    @ManyToOne
+    @JoinColumn(name = "barbershop_id")
+    private Barbershop barbershop;
+
     @ManyToMany
     @JoinTable(name = "reservation_services", joinColumns = @JoinColumn(name = "reservation_id"), inverseJoinColumns = @JoinColumn(name = "service_id"))
     private List<Service> services = new ArrayList<>();
@@ -69,6 +73,14 @@ public class Reservation {
 
     public void setStaff(Staff staff) {
         this.staff = staff;
+    }
+
+    public Barbershop getBarbershop() {
+        return barbershop;
+    }
+
+    public void setBarbershop(Barbershop barbershop) {
+        this.barbershop = barbershop;
     }
 
     public List<Service> getServices() {

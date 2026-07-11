@@ -5,9 +5,18 @@ import java.util.List;
 
 public class ReservationRequest {
 
+    private String barbershopId;
     private LocalDateTime reservationDate;
     private Long staffId;
     private List<Long> serviceIds;
+
+    public String getBarbershopId() {
+        return barbershopId;
+    }
+
+    public void setBarbershopId(String barbershopId) {
+        this.barbershopId = barbershopId;
+    }
 
     public LocalDateTime getReservationDate() {
         return reservationDate;

@@ -1,5 +1,6 @@
 package com.dave.beeskium.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -35,6 +36,11 @@ public class Staff {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
+    @ManyToOne
+    @JoinColumn(name = "barbershop_id")
+    @JsonIgnore
+    private Barbershop barbershop;
 
     public Staff() {
     }
@@ -85,5 +91,13 @@ public class Staff {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
+    }
+
+    public Barbershop getBarbershop() {
+        return barbershop;
+    }
+
+    public void setBarbershop(Barbershop barbershop) {
+        this.barbershop = barbershop;
     }
 }

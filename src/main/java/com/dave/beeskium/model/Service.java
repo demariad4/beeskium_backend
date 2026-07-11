@@ -1,5 +1,6 @@
 package com.dave.beeskium.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -32,6 +33,11 @@ public class Service {
     @Min(value = 1, message = "La durata deve essere di almeno 1 minuto")
     @Column(name = "duration_minutes", nullable = false)
     private Integer durationMinutes;
+
+    @ManyToOne
+    @JoinColumn(name = "barbershop_id")
+    @JsonIgnore
+    private Barbershop barbershop;
 
     public Service() {
     }
@@ -74,5 +80,13 @@ public class Service {
 
     public void setDurationMinutes(Integer durationMinutes) {
         this.durationMinutes = durationMinutes;
+    }
+
+    public Barbershop getBarbershop() {
+        return barbershop;
+    }
+
+    public void setBarbershop(Barbershop barbershop) {
+        this.barbershop = barbershop;
     }
 }

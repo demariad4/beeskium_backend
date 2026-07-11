@@ -4,8 +4,7 @@ import java.util.List;
 
 import com.dave.beeskium.model.Service;
 import com.dave.beeskium.repository.ServiceRepository;
-
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @org.springframework.stereotype.Service
 public class ServicesService {
@@ -19,6 +18,10 @@ public class ServicesService {
     @Transactional
     public List<Service> getServices() {
         return serviceRepository.findAll();
+    }
+    @Transactional(readOnly = true)
+    public List<Service> getServicesByBarbershop(String barbershopSlug) {
+        return serviceRepository.findByBarbershop_Slug(barbershopSlug);
     }
 
 }

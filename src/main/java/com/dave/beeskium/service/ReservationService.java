@@ -5,10 +5,11 @@ import com.dave.beeskium.model.Reservation;
 import com.dave.beeskium.model.Service;
 import com.dave.beeskium.model.Staff;
 import com.dave.beeskium.model.User;
+import com.dave.beeskium.model.Barbershop;
 import com.dave.beeskium.repository.ReservationRepository;
 import com.dave.beeskium.repository.ServiceRepository;
 import com.dave.beeskium.repository.StaffRepository;
-import com.dave.beeskium.repository.UserRepository;
+import com.dave.beeskium.repository.BarbershopRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -23,18 +24,21 @@ import java.util.ArrayList;
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final StaffRepository staffRepository;
     private final ServiceRepository serviceRepository;
+    private final BarbershopRepository barbershopRepository;
 
     public ReservationService(ReservationRepository reservationRepository,
-            UserRepository userRepository,
+            UserService userService,
             StaffRepository staffRepository,
-            ServiceRepository serviceRepository) {
+            ServiceRepository serviceRepository,
+            BarbershopRepository barbershopRepository) {
         this.reservationRepository = reservationRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.staffRepository = staffRepository;
         this.serviceRepository = serviceRepository;
+        this.barbershopRepository = barbershopRepository;
     }
 
     @Transactional
@@ -43,19 +47,54 @@ public class ReservationService {
     }
 
     @Transactional
-    public Reservation createReservation(String userEmail, ReservationRequest request) {
+    public List<Reservation> getUpcomingReservationsByBarbershop(String barbershopId) {
+        return reservationRepository.findByBarbershop_SlugAndReservationDateAfterOrderByReservationDateAsc(
+                barbershopId,
+                LocalDateTime.now());
+    }
 
-        User user = userRepository.findByEmail(userEmail);
+    @Transactional
+    public Reservation createReservation(String userEmail, ReservationRequest request) {
+        if (request == null || request.getBarbershopId() == null || request.getBarbershopId().isBlank()) {
+            throw new RuntimeException("Il barbershop è obbligatorio");
+        }
+
+        if (request.getStaffId() == null) {
+            throw new RuntimeException("Devi selezionare un membro dello staff");
+        }
+
+        if (request.getServiceIds() == null || request.getServiceIds().isEmpty()) {
+            throw new RuntimeException("Devi selezionare almeno un servizio");
+        }
+
+        if (request.getReservationDate() == null) {
+            throw new RuntimeException("La data e ora sono obbligatorie");
+        }
+
+        Barbershop barbershop = barbershopRepository.findBySlug(request.getBarbershopId())
+                .orElseThrow(() -> new RuntimeException("Barbershop non trovato"));
+
+        User user = userService.findByEmail(userEmail);
 
         Staff staff = staffRepository.findById(request.getStaffId())
                 .orElseThrow(() -> new RuntimeException("Membro dello staff non trovato"));
+
+        if (staff.getBarbershop() == null || staff.getBarbershop().getId() == null
+                || !staff.getBarbershop().getId().equals(barbershop.getId())) {
+            throw new RuntimeException("Il barbiere non appartiene al barbershop selezionato");
+        }
 
         if (!staff.getIsActive())
             throw new RuntimeException("Membro dello staff non attivo");
 
         List<Service> services = serviceRepository.findAllById(request.getServiceIds());
-        if (services.isEmpty()) {
-            throw new RuntimeException("Devi selezionare almeno un servizio");
+        if (services.isEmpty() || services.size() != request.getServiceIds().size()) {
+            throw new RuntimeException("Alcuni servizi non sono validi");
+        }
+        if (!services.stream().allMatch(service -> service.getBarbershop() != null
+                && service.getBarbershop().getId() != null
+                && service.getBarbershop().getId().equals(barbershop.getId()))) {
+            throw new RuntimeException("Uno o più servizi non appartengono al barbershop selezionato");
         }
 
         // Calcolo prezzo e durata
@@ -86,6 +125,7 @@ public class ReservationService {
         reservation.setUser(user);
         reservation.setStaff(staff);
         reservation.setServices(services);
+        reservation.setBarbershop(barbershop);
         reservation.setReservationDate(newStart);
         reservation.setTotalPrice(totalPrice);
         reservation.setTotalDurationMinutes(totalDurationMinutes);
@@ -105,11 +145,27 @@ public class ReservationService {
         reservationRepository.delete(reservation);
     }
 
-    public List<LocalTime> getAvailableTimeSlots(Long staffId, LocalDate date, List<Long> serviceIds) {
+    public List<LocalTime> getAvailableTimeSlots(String barbershopId, Long staffId, LocalDate date, List<Long> serviceIds) {
+        Barbershop barbershop = barbershopRepository.findBySlug(barbershopId)
+                .orElseThrow(() -> new RuntimeException("Barbershop non trovato"));
+
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new RuntimeException("Membro dello staff non trovato"));
+
+        if (staff.getBarbershop() == null || staff.getBarbershop().getId() == null
+                || !staff.getBarbershop().getId().equals(barbershop.getId())) {
+            throw new RuntimeException("Il barbiere non appartiene al barbershop selezionato");
+        }
 
         List<Service> services = serviceRepository.findAllById(serviceIds);
-        if (services.isEmpty()) {
+        if (serviceIds == null || serviceIds.isEmpty() || services.isEmpty()
+                || services.size() != serviceIds.size()) {
             throw new RuntimeException("Devi selezionare almeno un servizio");
+        }
+        if (!services.stream().allMatch(service -> service.getBarbershop() != null
+                && service.getBarbershop().getId() != null
+                && service.getBarbershop().getId().equals(barbershop.getId()))) {
+            throw new RuntimeException("Uno o più servizi non appartengono al barbershop selezionato");
         }
 
         int totalDurationMinutes = services.stream()
