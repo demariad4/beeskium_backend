@@ -1,27 +1,16 @@
-package com.dave.beeskium.model;
+package com.dave.beeskium.dto;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-@Entity
-@Table(name = "barbershops")
-public class Barbershop {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class AdminBarbershopRequest {
 
     @NotBlank(message = "Lo slug del barbershop non può essere vuoto")
     @Size(max = 80)
-    @Column(nullable = false, unique = true)
     private String slug;
 
     @NotBlank(message = "Il nome del barbershop non può essere vuoto")
     @Size(max = 120)
-    @Column(nullable = false)
     private String name;
 
     private String address;
@@ -29,22 +18,6 @@ public class Barbershop {
     private String whatsapp;
     private String instagram;
     private String phone;
-
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    @JsonIgnore
-    private User owner;
-
-    public Barbershop() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getSlug() {
         return slug;
@@ -100,13 +73,5 @@ public class Barbershop {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
     }
 }

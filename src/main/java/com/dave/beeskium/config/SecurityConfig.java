@@ -49,8 +49,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/barbershops/*/reservations").permitAll()
                         .requestMatchers("/api/services").permitAll()
                         .requestMatchers("/api/services/**").permitAll()
+                        .requestMatchers("/api/admin/become-admin").hasAnyAuthority("ROLE_USER", "USER", "ROLE_ADMIN", "ADMIN")
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/api/admin/**").authenticated()
                         .anyRequest().hasAnyAuthority("ROLE_USER", "USER", "ROLE_ADMIN", "ADMIN"))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

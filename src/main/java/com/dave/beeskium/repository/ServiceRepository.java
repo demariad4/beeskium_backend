@@ -10,4 +10,7 @@ import com.dave.beeskium.model.Service;
 @Repository
 public interface ServiceRepository extends JpaRepository<Service, Long> {
     List<Service> findByBarbershop_Slug(String slug);
+    List<Service> findByBarbershop_Id(Long barbershopId);
+
+    void deleteByBarbershop_Id(Long barbershopId);
 }
