@@ -3,6 +3,8 @@ package com.dave.beeskium.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalTime;
+
 public class AdminBarbershopRequest {
 
     @NotBlank(message = "Lo slug del barbershop non può essere vuoto")
@@ -18,6 +20,8 @@ public class AdminBarbershopRequest {
     private String whatsapp;
     private String instagram;
     private String phone;
+    private LocalTime openingTime;
+    private LocalTime closingTime;
 
     public String getSlug() {
         return slug;
@@ -73,5 +77,21 @@ public class AdminBarbershopRequest {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public LocalTime getOpeningTime() {
+        return openingTime;
+    }
+
+    public void setOpeningTime(LocalTime openingTime) {
+        this.openingTime = openingTime;
+    }
+
+    public LocalTime getClosingTime() {
+        return closingTime;
+    }
+
+    public void setClosingTime(LocalTime closingTime) {
+        this.closingTime = closingTime;
     }
 }

@@ -10,7 +10,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-//NOTA: Classe utillizzata solamente in fase di testing, da rimuovere in produzione
+import java.time.LocalTime;//NOTA: Classe utillizzata solamente in fase di testing, da rimuovere in produzione
+
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -37,6 +38,8 @@ public class DataInitializer implements CommandLineRunner {
             created.setWhatsapp("https://wa.me/3909661820267");
             created.setInstagram("https://www.instagram.com/beeskium.barber/");
             created.setPhone("tel:09661820267");
+            created.setOpeningTime(LocalTime.of(8, 0));
+            created.setClosingTime(LocalTime.of(20, 0));
             return barbershopRepository.save(created);
         });
 

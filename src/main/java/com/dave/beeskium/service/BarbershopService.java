@@ -2,6 +2,7 @@ package com.dave.beeskium.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalTime;
 
 import com.dave.beeskium.dto.AdminBarbershopRequest;
 import com.dave.beeskium.model.Barbershop;
@@ -101,6 +102,25 @@ public class BarbershopService {
     }
 
     private void applyRequest(Barbershop barbershop, AdminBarbershopRequest request) {
+        if (!isValidOptionalUrl(request.getMapsUrl())) {
+            throw new IllegalArgumentException("Formato URL maps non valido.");
+        }
+
+        if (!isValidOptionalUrl(request.getWhatsapp(), new String[] {
+                "wa.me",
+                "api.whatsapp.com",
+                "web.whatsapp.com"
+        })) {
+            throw new IllegalArgumentException("Formato WhatsApp non valido.");
+        }
+
+        if (!isValidOptionalUrl(request.getInstagram(), new String[] {
+                "instagram.com",
+                "www.instagram.com"
+        })) {
+            throw new IllegalArgumentException("Formato Instagram non valido.");
+        }
+
         barbershop.setSlug(request.getSlug());
         barbershop.setName(request.getName());
         barbershop.setAddress(request.getAddress());
@@ -108,5 +128,77 @@ public class BarbershopService {
         barbershop.setWhatsapp(request.getWhatsapp());
         barbershop.setInstagram(request.getInstagram());
         barbershop.setPhone(request.getPhone());
+        barbershop.setOpeningTime(resolveOpeningTime(request.getOpeningTime(), LocalTime.of(8, 0)));
+        barbershop.setClosingTime(resolveClosingTime(request.getClosingTime(), LocalTime.of(20, 0)));
+
+        if (!barbershop.getOpeningTime().isBefore(barbershop.getClosingTime())) {
+            throw new IllegalArgumentException("L'orario di apertura deve essere precedente a quello di chiusura.");
+        }
+    }
+
+    private LocalTime resolveOpeningTime(LocalTime candidate, LocalTime fallback) {
+        if (candidate == null) {
+            return fallback;
+        }
+        return candidate;
+    }
+
+    private LocalTime resolveClosingTime(LocalTime candidate, LocalTime fallback) {
+        if (candidate == null) {
+            return fallback;
+        }
+        return candidate;
+    }
+
+    private boolean isValidOptionalUrl(String rawUrl, String[] allowedHosts) {
+        if (rawUrl == null || rawUrl.isBlank()) {
+            return true;
+        }
+
+        var parsed = parseOrNull(rawUrl);
+        if (parsed == null) {
+            return false;
+        }
+
+        return hasAllowedHost(parsed, allowedHosts);
+    }
+
+    private boolean isValidOptionalUrl(String rawUrl) {
+        if (rawUrl == null || rawUrl.isBlank()) {
+            return true;
+        }
+
+        return parseOrNull(rawUrl) != null;
+    }
+
+    private boolean hasAllowedHost(java.net.URL parsed, String[] allowedHosts) {
+        String host = parsed.getHost();
+        for (String allowedHost : allowedHosts) {
+            if (allowedHost.equalsIgnoreCase(host)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private java.net.URL parseOrNull(String rawUrl) {
+        if (rawUrl == null) {
+            return null;
+        }
+
+        String trimmed = rawUrl.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return new java.net.URL(trimmed);
+        } catch (Exception ignore) {
+            try {
+                return new java.net.URL("https://" + trimmed);
+            } catch (Exception ignore2) {
+                return null;
+            }
+        }
     }
 }

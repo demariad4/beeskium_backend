@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import com.dave.beeskium.utils.LocalTimeStringConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "barbershops")
@@ -29,6 +31,14 @@ public class Barbershop {
     private String whatsapp;
     private String instagram;
     private String phone;
+
+    @Convert(converter = LocalTimeStringConverter.class)
+    @Column(name = "opening_time", nullable = true, length = 5)
+    private LocalTime openingTime;
+
+    @Convert(converter = LocalTimeStringConverter.class)
+    @Column(name = "closing_time", nullable = true, length = 5)
+    private LocalTime closingTime;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
@@ -100,6 +110,22 @@ public class Barbershop {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public LocalTime getOpeningTime() {
+        return openingTime;
+    }
+
+    public void setOpeningTime(LocalTime openingTime) {
+        this.openingTime = openingTime;
+    }
+
+    public LocalTime getClosingTime() {
+        return closingTime;
+    }
+
+    public void setClosingTime(LocalTime closingTime) {
+        this.closingTime = closingTime;
     }
 
     public User getOwner() {

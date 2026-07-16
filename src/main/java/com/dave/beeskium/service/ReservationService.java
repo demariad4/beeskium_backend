@@ -18,6 +18,7 @@ import java.util.List;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.time.DayOfWeek;
 
 // necessario in quanto ho la classe service dello stess nome
 @org.springframework.stereotype.Service
@@ -70,6 +71,9 @@ public class ReservationService {
         if (request.getReservationDate() == null) {
             throw new RuntimeException("La data e ora sono obbligatorie");
         }
+        if (request.getReservationDate().getDayOfWeek() == DayOfWeek.SUNDAY) {
+            throw new RuntimeException("Non è possibile prenotare di domenica");
+        }
 
         Barbershop barbershop = barbershopRepository.findBySlug(request.getBarbershopId())
                 .orElseThrow(() -> new RuntimeException("Barbershop non trovato"));
@@ -104,6 +108,10 @@ public class ReservationService {
             totalPrice = totalPrice.add(s.getPrice());
             totalDurationMinutes += s.getDurationMinutes();
         }
+
+        LocalTime openingTime = resolveOpeningTime(barbershop.getOpeningTime());
+        LocalTime closingTime = resolveClosingTime(barbershop.getClosingTime());
+        validateWithinOpeningWindow(request.getReservationDate(), totalDurationMinutes, openingTime, closingTime);
 
         // Controllo se ci sono sovrapposizioni per lo stesso membro dello staff
         LocalDateTime newStart = request.getReservationDate();
@@ -156,6 +164,9 @@ public class ReservationService {
                 || !staff.getBarbershop().getId().equals(barbershop.getId())) {
             throw new RuntimeException("Il barbiere non appartiene al barbershop selezionato");
         }
+        if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            return List.of();
+        }
 
         List<Service> services = serviceRepository.findAllById(serviceIds);
         if (serviceIds == null || serviceIds.isEmpty() || services.isEmpty()
@@ -172,8 +183,8 @@ public class ReservationService {
                 .mapToInt(Service::getDurationMinutes)
                 .sum();
 
-        LocalTime openingTime = LocalTime.of(8, 0);
-        LocalTime closingTime = LocalTime.of(20, 0);
+        LocalTime openingTime = resolveOpeningTime(barbershop.getOpeningTime());
+        LocalTime closingTime = resolveClosingTime(barbershop.getClosingTime());
 
         int slotIntervalMinutes = 5;
 
@@ -212,5 +223,38 @@ public class ReservationService {
         }
 
         return availableSlots;
+    }
+
+    private LocalTime resolveOpeningTime(LocalTime openingTime) {
+        if (openingTime == null) {
+            return LocalTime.of(8, 0);
+        }
+        return openingTime;
+    }
+
+    private LocalTime resolveClosingTime(LocalTime closingTime) {
+        if (closingTime == null) {
+            return LocalTime.of(20, 0);
+        }
+        return closingTime;
+    }
+
+    private void validateWithinOpeningWindow(
+            LocalDateTime reservationStart,
+            Integer totalDurationMinutes,
+            LocalTime openingTime,
+            LocalTime closingTime) {
+
+        LocalDateTime openingDateTime = reservationStart.toLocalDate().atTime(openingTime);
+        LocalDateTime closingDateTime = reservationStart.toLocalDate().atTime(closingTime);
+        LocalDateTime reservationEnd = reservationStart.plusMinutes(totalDurationMinutes);
+
+        if (!openingTime.isBefore(closingTime)) {
+            throw new RuntimeException("Gli orari di apertura del barbershop non sono configurati correttamente.");
+        }
+
+        if (reservationStart.isBefore(openingDateTime) || reservationEnd.isAfter(closingDateTime)) {
+            throw new RuntimeException("L'orario selezionato deve essere compreso negli orari di apertura del barbershop.");
+        }
     }
 }
