@@ -45,8 +45,11 @@ public class ReservationController {
                 .map(Service::getId)
                 .toList();
 
+        String barbershopId = reservation.getBarbershop() != null ? reservation.getBarbershop().getSlug() : "";
+
         ReservationReply reply = new ReservationReply(
                 reservation.getId(),
+                barbershopId,
                 reservation.getReservationDate(),
                 reservation.getStaff().getId(),
                 serviceIds, reservation.getTotalPrice(), reservation.getTotalDurationMinutes());
@@ -60,15 +63,36 @@ public class ReservationController {
         List<ReservationReply> ret = new LinkedList<>();
 
         for (Reservation r : reservations) {
+            String barbershopId = r.getBarbershop() != null ? r.getBarbershop().getSlug() : "";
             List<Long> serviceIds = r.getServices().stream()
                     .map(Service::getId)
                     .toList();
 
-            ret.add(new ReservationReply(r.getId(), r.getReservationDate(), r.getStaff().getId(), serviceIds,
-                    r.getTotalPrice(),
+            ret.add(new ReservationReply(r.getId(), barbershopId, r.getReservationDate(),
+                    r.getStaff().getId(), serviceIds, r.getTotalPrice(),
                     r.getTotalDurationMinutes()));
         }
-        return ResponseEntity.status(HttpStatus.FOUND).body(ret);
+        return ResponseEntity.ok(ret);
+    }
+
+    @GetMapping("/barbershops/{barbershopId}/reservations")
+    public ResponseEntity<List<ReservationReply>> getUpcomingBarbershopReservations(
+            @PathVariable String barbershopId) {
+
+        List<Reservation> reservations = reservationService.getUpcomingReservationsByBarbershop(barbershopId);
+
+        List<ReservationReply> ret = new LinkedList<>();
+
+        for (Reservation r : reservations) {
+            String barbershopSlug = r.getBarbershop() != null ? r.getBarbershop().getSlug() : "";
+            List<Long> serviceIds = r.getServices().stream().map(Service::getId).toList();
+
+            ret.add(new ReservationReply(r.getId(), barbershopSlug, r.getReservationDate(),
+                    r.getStaff().getId(), serviceIds, r.getTotalPrice(),
+                    r.getTotalDurationMinutes()));
+        }
+
+        return ResponseEntity.ok(ret);
     }
 
     @DeleteMapping("/deleteReservation/{id}")
@@ -81,11 +105,12 @@ public class ReservationController {
 
     @GetMapping("/availabilities")
     public ResponseEntity<List<LocalTime>> getAvailableSlots(
+            @RequestParam String barbershopId,
             @RequestParam Long staffId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam List<Long> serviceIds) {
 
-        List<LocalTime> availableSlots = reservationService.getAvailableTimeSlots(staffId, date, serviceIds);
+        List<LocalTime> availableSlots = reservationService.getAvailableTimeSlots(barbershopId, staffId, date, serviceIds);
         return ResponseEntity.ok(availableSlots);
     }
 }

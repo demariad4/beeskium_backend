@@ -7,21 +7,31 @@ import java.util.List;
 public class ReservationReply {
 
     private Long id;
+    private String barbershopId;
     private LocalDateTime reservationDate;
     private Long staffId;
     private List<Long> serviceIds;
     private BigDecimal totalPrice;
     private Integer totalDurationMinutes;
 
-    public ReservationReply(Long id, LocalDateTime reservationDate, Long staffId, List<Long> serviceIds,
+    public ReservationReply(Long id, String barbershopId, LocalDateTime reservationDate, Long staffId, List<Long> serviceIds,
             BigDecimal totalPrice,
             Integer totalDurationMinutes) {
         this.id = id;
+        this.barbershopId = barbershopId;
         this.reservationDate = reservationDate;
         this.staffId = staffId;
         this.serviceIds = serviceIds;
         this.totalPrice = totalPrice;
         this.totalDurationMinutes = totalDurationMinutes;
+    }
+
+    public String getBarbershopId() {
+        return barbershopId;
+    }
+
+    public void setBarbershopId(String barbershopId) {
+        this.barbershopId = barbershopId;
     }
 
     public LocalDateTime getReservationDate() {

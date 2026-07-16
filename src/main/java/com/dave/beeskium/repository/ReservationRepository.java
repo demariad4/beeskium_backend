@@ -14,4 +14,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByUserEmail(String email);
 
     List<Reservation> findByStaffIdAndReservationDateBetween(Long staffId, LocalDateTime start, LocalDateTime end);
+
+    void deleteByBarbershop_Id(Long barbershopId);
+
+    List<Reservation> findByBarbershop_SlugAndReservationDateAfterOrderByReservationDateAsc(String slug, LocalDateTime now);
 }

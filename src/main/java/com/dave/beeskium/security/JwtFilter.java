@@ -18,6 +18,7 @@ import java.util.List;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private static final String DEFAULT_ROLE = "ROLE_USER";
 
     public JwtFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
@@ -35,8 +36,9 @@ public class JwtFilter extends OncePerRequestFilter {
             if (jwtUtil.isTokenValid(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
                 String username = jwtUtil.extractUsername(token);
                 String role = jwtUtil.extractRole(token);
+                String normalizedRole = normalizeRole(role);
 
-                List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
+                List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(normalizedRole));
 
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         username, null, authorities);
@@ -45,5 +47,20 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
         chain.doFilter(request, response);
+    }
+
+    private String normalizeRole(String role) {
+        if (role == null) {
+            return DEFAULT_ROLE;
+        }
+
+        String normalizedRole = role.trim();
+        if (normalizedRole.isBlank()) {
+            return DEFAULT_ROLE;
+        }
+
+        return normalizedRole.startsWith("ROLE_")
+                ? normalizedRole
+                : "ROLE_" + normalizedRole;
     }
 }
