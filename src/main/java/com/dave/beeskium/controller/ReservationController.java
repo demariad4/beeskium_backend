@@ -110,7 +110,8 @@ public class ReservationController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam List<Long> serviceIds) {
 
-        List<LocalTime> availableSlots = reservationService.getAvailableTimeSlots(barbershopId, staffId, date, serviceIds);
+        List<LocalTime> availableSlots = reservationService.getAvailableTimeSlots(barbershopId, staffId, date,
+                serviceIds);
         return ResponseEntity.ok(availableSlots);
     }
 }
