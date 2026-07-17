@@ -153,7 +153,8 @@ public class ReservationService {
         reservationRepository.delete(reservation);
     }
 
-    public List<LocalTime> getAvailableTimeSlots(String barbershopId, Long staffId, LocalDate date, List<Long> serviceIds) {
+    public List<LocalTime> getAvailableTimeSlots(String barbershopId, Long staffId, LocalDate date,
+            List<Long> serviceIds) {
         Barbershop barbershop = barbershopRepository.findBySlug(barbershopId)
                 .orElseThrow(() -> new RuntimeException("Barbershop non trovato"));
 
@@ -186,7 +187,7 @@ public class ReservationService {
         LocalTime openingTime = resolveOpeningTime(barbershop.getOpeningTime());
         LocalTime closingTime = resolveClosingTime(barbershop.getClosingTime());
 
-        int slotIntervalMinutes = 5;
+        int slotIntervalMinutes = 15;
 
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
@@ -254,7 +255,8 @@ public class ReservationService {
         }
 
         if (reservationStart.isBefore(openingDateTime) || reservationEnd.isAfter(closingDateTime)) {
-            throw new RuntimeException("L'orario selezionato deve essere compreso negli orari di apertura del barbershop.");
+            throw new RuntimeException(
+                    "L'orario selezionato deve essere compreso negli orari di apertura del barbershop.");
         }
     }
 }

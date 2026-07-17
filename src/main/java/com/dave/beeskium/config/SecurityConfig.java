@@ -49,7 +49,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/barbershops/*/reservations").permitAll()
                         .requestMatchers("/api/services").permitAll()
                         .requestMatchers("/api/services/**").permitAll()
-                        .requestMatchers("/api/admin/become-admin").hasAnyAuthority("ROLE_USER", "USER", "ROLE_ADMIN", "ADMIN")
+                        .requestMatchers("/api/admin/become-admin")
+                        .hasAnyAuthority("ROLE_USER", "USER", "ROLE_ADMIN", "ADMIN")
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/admin/**").authenticated()
                         .anyRequest().hasAnyAuthority("ROLE_USER", "USER", "ROLE_ADMIN", "ADMIN"))
@@ -62,8 +63,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(
-                List.of("http://localhost:4200", "http://127.0.0.1:4200", "http://localhost:4201", "http://127.0.0.1:4201"));
+        // SOSTITUISCI setAllowedOrigins CON setAllowedOriginPatterns
+        configuration.setAllowedOriginPatterns(List.of("*"));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
