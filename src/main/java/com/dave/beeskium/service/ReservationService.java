@@ -80,8 +80,8 @@ public class ReservationService {
 
         User user = userService.findByEmail(userEmail);
 
-        Staff staff = staffRepository.findById(request.getStaffId())
-                .orElseThrow(() -> new RuntimeException("Membro dello staff non trovato"));
+        Staff staff = staffRepository.findByIdForUpdate(request.getStaffId())
+        .orElseThrow(() -> new RuntimeException("Membro dello staff non trovato"));
 
         if (staff.getBarbershop() == null || staff.getBarbershop().getId() == null
                 || !staff.getBarbershop().getId().equals(barbershop.getId())) {
