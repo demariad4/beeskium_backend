@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "users")
@@ -39,6 +40,7 @@ public class User {
     private String phone;
 
     @NotBlank(message = "La password non può essere vuota")
+    @JsonIgnore
     @Column(name = "password_hash", nullable = false, length = 255)
     private String password;
 

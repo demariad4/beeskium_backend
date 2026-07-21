@@ -9,7 +9,8 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "services")
+@Table(name = "services", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_service_barbershop_name", columnNames = { "barbershop_id", "name" })})
 public class Service {
 
     @Id
@@ -18,7 +19,7 @@ public class Service {
 
     @NotBlank(message = "Il nome del servizio non può essere vuoto")
     @Size(max = 100)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @Size(max = 255)
